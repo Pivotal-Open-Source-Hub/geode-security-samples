@@ -20,7 +20,7 @@ public class GeodeClientApp {
 	String password = "";
 	
 	try {
-		prop.load(GeodeClientApp.class.getResourceAsStream("/common.env"));
+		prop.load(GeodeClientApp.class.getResourceAsStream("/user_credentials.properties"));
 		int operation = messageAndPrompt();
 	      
 	    if (operation < 1 || operation > 3) {
