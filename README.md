@@ -21,10 +21,10 @@ After you clone this repository, you need to build the JAR file that contains th
 cd <path-to-local-repo>/sample-data-grid-security    
 mvn clean package
 ```    
-After a successful Maven execution, you can find the JAR file at 'path-to-local-repo/sample-data-grid-security/target/sample-data-grid-security-0.1.0.jar'
+After a successful Maven execution, you can find the JAR file at '/path-to-local-repo/sample-data-grid-security/target/sample-data-grid-security-0.1.0.jar'
 
 ## Install JARs to your local Maven repo
-Geode's JAR files are not yet in any public Maven repositories, so we need to manually install these 3 JAR files to your local Maven repo. Please make sure the $GEMFIRE variable is set before executing this Maven comand:
+As of July 2015, Geode's JAR files are not yet in any public Maven repositories, so we need to manually install these 3 JAR files to your local Maven repo. Please make sure the $GEMFIRE variable is set before executing this Maven comand:
 
 ```
 mvn install:install-file -Dfile=$GEMFIRE/lib/gemfire-core-1.0.0-incubating-SNAPSHOT.jar -DgroupId=com.gemstone.gemfire -DartifactId=gemfire-core -Dversion=1.0.0-incubating-SNAPSHOT -Dpackaging=jar
@@ -41,16 +41,16 @@ mvn install:install-file -Dfile=sample-data-grid-security-0.1.0.jar -DgroupId=or
 
 ## Customize settings of your Geode cluster
 
-Changing envrionment variables of the Geode script: edit the '<path-to-local-repo>/geode-cluster-scripts/gfsh_start_cluster.sh' and adjust these variables based on your settings. Use 2 of the LDAP service accounts to set the value of EMPLOYEE_APP_USER and CUSTOMER_APP_USER variables: 
+**Changing envrionment variables of the Geode script**: edit the '/path-to-local-repo/geode-cluster-scripts/gfsh_start_cluster.sh' and adjust these variables based on your settings. Use 2 of the LDAP service accounts to set the value of EMPLOYEE_APP_USER and CUSTOMER_APP_USER variables: 
 ```
 set variable --name=SAMPLE_SECURITY_IMPL_DIR --value=<path-to-local-repo>/sample-data-grid-security
-set variable --name=EMPLOYEE_APP_USER --value=your-employee-app
-set variable --name=CUSTOMER_APP_USER --value=your-employee-app
+set variable --name=EMPLOYEE_APP_USER --value=your-employee-app-user
+set variable --name=CUSTOMER_APP_USER --value=your-employee-app-user
 ```
 Save your changes.
 
 
-Changing LDAP settings: edit the following properties in the '<path-to-local-repo>/geode-cluster-scripts/config/gemfire-server.properties' file to match your LDAP-related settings. Use one of your LDAP service accounts to set the username and password for Geode server authentication
+**Changing LDAP settings**: edit the following properties in the '/path-to-local-repo/geode-cluster-scripts/config/gemfire-server.properties' file to match your LDAP-related settings. Use one of your LDAP service accounts to set the username and password for Geode server authentication
 
 ```
 security-ldap-url=ldap://localhost:10389/
@@ -99,9 +99,23 @@ java -jar target/sample-client-security-0.1.0.jar
 
 To run the test scenarios using the Customer application’s service account, enter 1. To use the Employee application’s service account, enter 2. This screenshot shows the menu that the sample client application displays.
 
-## Review the Geode server's log
-To review the messages that our sample authorization implementation displays, open the 'path-to-local-repo/geode-cluster-scripts/server1/server1.log' file and look for the keyword 'AUDIT_TRAIL'
+## Query data in Geode regions
+To query your data, open a terminal window and type:
+```
+gfsh
+connect --locator=localhost[10334]
+query --query='select * from /PermissionPerRole'
+query --query='select * from /Account'
+```
 
+## Review the Geode server's log
+To review the messages that our sample authorization implementation displays, open the '/path-to-local-repo/geode-cluster-scripts/server1/server1.log' file and look for the keyword 'AUDIT_TRAIL'. You will see messages such as:
+
+```
+[info 2015/07/09 12:29:18.185 CDT server1 <ServerConnection on port 40404 Thread 1> tid=0x47] AUDIT_TRAIL: ALLOWED This Geode user [customer-app] with this role [customer] invoked this operation [GET] in region [/Account] from this remote client: 192.168.59.3(66444:loner):53650:863ddd73
+
+[info 2015/07/09 12:29:19.279 CDT server1 <ServerConnection on port 40404 Thread 1> tid=0x47] AUDIT_TRAIL: DENIED This Geode user [customer-app] with this role [customer] invoked this operation [PUTALL] in region [/Account] from this remote client: 192.168.59.3(66444:loner):53650:863ddd73
+```
 ## Stop the Geode cluster
 Once you are done testing, you can stop the Geode cluster. Change to the 'geode-cluster-scripts' folder and execute the 'shutdown' command:
 
