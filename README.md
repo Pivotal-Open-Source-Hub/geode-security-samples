@@ -1,7 +1,8 @@
 # Geode security - Sample implementation
 
 This repository helps explain Geode's security mechanism for AuthN and AuthZ. It contains the following:
-* Scripts to start and stop a local Geode cluster
+* Commands to start, configure and stop a local Geode cluster
+* Commands to create Geode regions both partitioned and replicated
 * Sample Java implementation of the authN and authZ callbacks
 * Sample Java client application to test both authN and authZ callbacks
 
@@ -14,8 +15,32 @@ In your local environment, perform the following steps:
 * Install an LDAP server and define 3 service accounts. Alternatively, you can use an existing LDAP server and define 3 service accounts
 * Install Maven 3.x and configure the M2_HOME environment variable
 
-## Adapt settings to your environment
-After you clone this repository, edit the following properties in the '<path-to-local-repo>/geode-cluster-scripts/config/gemfire-server.properties' file to match your LDAP-related settings:
+## Build the sample security implementation
+To build the JAR file that contains the sample authN and authZ implementation, you need to:    
+```
+cd <path-to-local-repo>/sample-data-grid-security    
+mvn clean package
+```    
+After a successful Maven execution, you can find the JAR file at 'path-to-local-repo/sample-data-grid-security/target/sample-data-grid-security-0.1.0.jar'
+
+## Install JARs to your local Maven repo
+Geode's JAR files are not yet in any public Maven repositories, so we need to manually install these 3 JAR files to your local Maven repo. . Please make sure the $GEMFIRE variable is set before executing this Maven comand:
+
+```
+mvn install:install-file -Dfile=$GEMFIRE/lib/gemfire-core-1.0.0-incubating-SNAPSHOT.jar -DgroupId=com.gemstone.gemfire -DartifactId=gemfire-core -Dversion=1.0.0-incubating-SNAPSHOT -Dpackaging=jar
+mvn install:install-file -Dfile=$GEMFIRE/lib/gemfire-jgroups-1.0.0-incubating-SNAPSHOT.jar -DgroupId=com.gemstone.gemfire -DartifactId=gemfire-jgroups -Dversion=1.0.0-incubating-SNAPSHOT -Dpackaging=jar
+mvn install:install-file -Dfile=$GEMFIRE/lib/gemfire-core-dependencies.jar -DgroupId=com.gemstone.gemfire -DartifactId=gemfire-core-dependencies -Dversion=1.0 -Dpackaging=jar
+```
+
+We also need to install the sample security JAR file to your local Maven repository
+
+```
+cd <path-to-local-repo>/sample-data-grid-security/target    
+mvn install:install-file -Dfile=sample-data-grid-security-0.1.0.jar -DgroupId=org.mycompany.security.samples -DartifactId=sample-data-grid-security -Dversion=0.1.0 -Dpackaging=jar
+```
+
+## Customize settings of your Geode cluster
+After you clone this repository, edit the following properties in the '<path-to-local-repo>/geode-cluster-scripts/config/gemfire-server.properties' file to match your LDAP-related settings. Use one of your LDAP service accounts to set the username and password for Geode server authentication
 
 ```
 security-ldap-url=ldap://localhost:10389/
@@ -24,6 +49,13 @@ security-ldap-filter=(&(objectClass=inetOrgPerson)(uid={0}))
 security-username=geode-system
 security-password=pass
 ```
+
+## Start the Geode cluster
+
+
+## Customize settings of your sample client app
+Now configure the client, edit the the 'sample-client-security/src/main/resources/user_credentials.properties'. This is necessary because the sample client app gets both service credentials as key-value pairs
+
 
 Then edit the 'common.env' file:
 * Set GEODE_SECURITY_HOME with the full path to the 'sample-data-grid-security' folder. For instance (Mac and *nix users):   
@@ -37,30 +69,7 @@ Then edit the 'common.env' file:
 ```     
 * Open a terminal and source the 'common.env' file. Make sure the above environment variables are set with the correct values
 
-Finally, copy the 'common.env' file to the 'sample-client-security/src/main/resources' folder. This is necessary because the sample client app gets both service credentials as key-value pairs
 
-## Build the sample security implementation
-To build the JAR file that contains the sample authN and authZ implementation, you need to:    
-```
-cd $GEODE_SECURITY_HOME    
-mvn clean package
-```    
-After a successful Maven execution, you can find the JAR file at '$GEODE_SECURITY_HOME/target/sample-data-grid-security-0.1.0.jar'
-
-## Install JARs to your local Maven repo
-Geode's JAR files are not yet in any public Maven repositories, so we need to manually install these 3 JAR files to your local Maven repo. . Please make sure the $GEMFIRE variable is set before executing this Maven comand:
-
-```
-mvn install:install-file -Dfile=$GEMFIRE/lib/gemfire-core-1.0.0-incubating-SNAPSHOT.jar -DgroupId=com.gemstone.gemfire -DartifactId=gemfire-core -Dversion=1.0.0-incubating-SNAPSHOT -Dpackaging=jar
-mvn install:install-file -Dfile=$GEMFIRE/lib/gemfire-jgroups-1.0.0-incubating-SNAPSHOT.jar -DgroupId=com.gemstone.gemfire -DartifactId=gemfire-jgroups -Dversion=1.0.0-incubating-SNAPSHOT -Dpackaging=jar
-mvn install:install-file -Dfile=$GEMFIRE/lib/gemfire-core-dependencies.jar -DgroupId=com.gemstone.gemfire -DartifactId=gemfire-core-dependencies -Dversion=1.0 -Dpackaging=jar
-```
-
-We also need to install the sample security JAR file. Please make sure the $GEODE_SECURITY_HOME variable is set before executing this Maven comand:
-
-```
-mvn install:install-file -Dfile=$GEODE_SECURITY_HOME/target/sample-data-grid-security-0.1.0.jar -DgroupId=org.mycompany.security.samples -DartifactId=sample-data-grid-security -Dversion=0.1.0 -Dpackaging=jar
-```
 
 ## Start the Geode cluster
 Now you are ready to start the Geode cluster. Change to the 'geode-cluster-scripts' folder and execute the 'start-cluster.sh' script:
