@@ -1,4 +1,4 @@
-# Geode security - sample LDAP implementation
+# Geode security: Sample LDAP implementation
 
 This repository helps explain Geode's security mechanism for AuthN and AuthZ. It contains the following:
 * Scripts to start and configure a local Geode cluster; and, to create both partitioned and replicated regions
