@@ -1,3 +1,8 @@
+/*=========================================================================
+* This implementation is provided on an "AS IS" BASIS,  WITHOUT WARRANTIES
+* OR CONDITIONS OF ANY KIND, either express or implied."
+*==========================================================================
+*/
 package org.mycompany.security.client;
 
 import java.io.BufferedReader;
